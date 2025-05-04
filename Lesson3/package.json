@@ -1,0 +1,23 @@
+{
+  "name": "lesson3",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./server.js",
+    "dev:json-server": "json-server --watch ./db.json --port 8081",
+    "dev": "concurrently \"npm start\" \"npm run dev:json-server\""
+  },
+  "dependencies": {
+    "axios": "^1.8.4",
+    "express": "^5.1.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
