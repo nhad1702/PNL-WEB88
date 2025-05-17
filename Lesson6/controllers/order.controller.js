@@ -1,4 +1,4 @@
-import OrderModel from "../models/order.js";
+import OrderModel from "../models/order.model.js";
 
 const OrderController = {
   // get list orders by customer id

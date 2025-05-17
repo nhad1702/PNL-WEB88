@@ -15,6 +15,6 @@ app.use(express.json());
 
 app.use("/api/v1", RootRouter);
 
-app.listen(8080, () => {
+app.listen(process.env.PORT, () => {
   console.log("Server is running!");
 });

@@ -1,6 +1,6 @@
 import customerModel from "../../Lesson5/Models/customer.model.js";
 
-const authMiddleware = async (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
   try {
     const apiKey = req.query.apiKey;
 
@@ -36,4 +36,24 @@ const authMiddleware = async (req, res, next) => {
     return res.status(500).send({ message: error.message });
   }
 };
-export default authMiddleware;
+
+export const validateCustomer = async (req, res, next) => {
+  try {
+    const { name, email, age, password } = req.body;
+    if (!name || !email || !age || !password) {
+      return res.status(400).send({ message: "All fields are required" });
+    }
+    // check email regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).send({ message: "Invalid email format" });
+    }
+    const customer = await customerModel.find({ email });
+    if (customer.length > 0) {
+      return res.status(400).send({ message: "Email already exists" });
+    }
+    next(); // Proceed to the next middleware or controller
+  }catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+}

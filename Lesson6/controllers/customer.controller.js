@@ -1,12 +1,13 @@
 import customerModel from "../../Lesson5/Models/customer.model.js";
 import crypto from "crypto";
+import bcrypt from 'bcrypt'
 // get list customers
 const CustomerController = {
   // get api key
   getApiKey: async (req, res) => {
     try {
       const customerId = req.params.id;
-      const customer = await CustomerModel.findById(customerId);
+      const customer = await customerModel.customerModel(customerId);
 
       if (!customer) {
         return res.status(404).send({ message: "Customer not found" });
@@ -25,7 +26,7 @@ const CustomerController = {
 
   getListCustomer: async (req, res) => {
     try {
-      const customers = await CustomerModel.find({});
+      const customers = await customerModel.find({});
     
       if (!customers) throw new Error("User not found!");
 
@@ -46,7 +47,7 @@ const CustomerController = {
   getCustomerById: async (req, res) => {
     try {
       const { id } = req.params;
-      const customerDetail = await CustomerModel.findById(id)
+      const customerDetail = await customerModel.findById(id)
 
       if (!customerDetail) res.status(404).send({
         message: "Customer not found!",
@@ -72,15 +73,20 @@ const CustomerController = {
   // create new customer
   createNewCustomer: async (req, res) => {
     try {
-      const {  name, email, age } = req.body;
-      if (!name) throw new Error("name is required!");
-      if (!email) throw new Error("email is required!");
-      if (!age) throw new Error("age is required!");
+      const { name, email, age, password } = req.body;
+      if (!name || !email || !age || !password) {
+        throw new Error('Missing information (name, email, age, password)')
+      }
+      const saltRounds = 10
+      const salt = bcrypt.genSaltSync(saltRounds)
+      const hash = bcrypt.hashSync(password, salt)
 
       const createdCustomer = await Customer.create({
         name,
         email,
         age,
+        hash,
+        salt
       });
       res.status(201).send({
         data: createdCustomer,
