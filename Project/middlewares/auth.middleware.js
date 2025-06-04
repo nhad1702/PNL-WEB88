@@ -51,10 +51,52 @@ export const authUser = async (req, res, next) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)
 
-        const existUser = userModel.findOne({ email: decoded.email })
+        const existUser = await userModel.findOne({ email: decoded.email })
         if (!existUser) return res.status(401).json({ message: 'Error: Invalid token: User not found' })
 
         req.user = existUser
+        next()
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}
+
+export const authManager = async (req, res, next) => {
+    try {
+        if (!req.user) return res.status(401).json({ message: 'Unauthorized: User not authenticated' });
+            
+        if (req.user.role !== 'manager') return res.status(403).json({ message: `Access denied: Manager's only` })
+
+        next()
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}
+
+export const validateTask = async (req, res, next) => {
+    try {
+        const { userId, content, rank, describe } = req.body
+        if (!userId || !content || !rank || !describe) return res.status(400).json({ message: 'Missing information' })
+
+        const existUser = await userModel.findOne({ _id: userId }) // Fix userId query
+        if (!existUser) return res.status(404).json({ message: 'User not found' })
+
+        req.task = existUser
+        next()
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}
+
+export const validateProject = async (req, res, next) => {
+    try {
+        const { ownerId, projectName, describe } = req.body
+        if (!ownerId || !projectName || !describe) return res.status(400).json({ message: 'Missing information' })
+
+        const existUser = userModel.findOne({ _id: ownerId })
+        if (!existUser) return res.status(404).json({ message: 'User not found' })
+
+        req.project = existUser
         next()
     } catch (error) {
         return res.status(500).json({ message: error.message })

@@ -6,7 +6,6 @@ import 'dotenv/config'
 
 const userController = {
     userRegister: async (req, res) => {
-        console.log(req.body)
         const { email, password, confirmPassword, firstName, lastName, DOB, gender } = req.body
         if (!email || !password || !firstName || !lastName || !DOB || !gender) return res.status(400).json({ message: 'Missing information' })
 
@@ -55,7 +54,28 @@ const userController = {
             const users = await userModel.find({})
             return res.status(200).json(users)
         } catch (error) {
-            return res.status(500).json({ message: err.message })
+            return res.status(500).json({ message: error.message })
+        }
+    },
+    checkUser: async (req, res) => {
+        return res.status(200).json({ user: req.user })
+    },
+    getUserProfile: async (req, res) => {
+        try {
+            const user = await userModel.findOne({ email: req.user.email })
+            if (!user) return res.status(404).json({ message: 'User not found' })
+            return res.status(200).json(user)
+        } catch (error) {
+            return res.status(500).json({ message: error.message })
+        }
+    },
+    getUserStats: async (req, res) => {
+        try {
+            const userStats = await userModel.findOne({ email: req.user.email }).select('stats')
+            if (!userStats) return res.status(404).json({ message: 'User not found' })
+            return res.status(200).json(userStats.stats)
+        } catch (error) {
+            return res.status(500).json({ message: error.message })
         }
     }
 }
