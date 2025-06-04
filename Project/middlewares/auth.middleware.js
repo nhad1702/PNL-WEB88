@@ -76,7 +76,7 @@ export const authManager = async (req, res, next) => {
 export const validateTask = async (req, res, next) => {
     try {
         const { userId, content, rank, describe } = req.body
-        if (!userId || !content || !rank || !describe) return res.status(400).json({ message: 'Missing information' })
+        if (!userId || !content || !rank) return res.status(400).json({ message: 'Missing information' })
 
         const existUser = await userModel.findOne({ _id: userId }) // Fix userId query
         if (!existUser) return res.status(404).json({ message: 'User not found' })
@@ -90,15 +90,20 @@ export const validateTask = async (req, res, next) => {
 
 export const validateProject = async (req, res, next) => {
     try {
-        const { ownerId, projectName, describe } = req.body
-        if (!ownerId || !projectName || !describe) return res.status(400).json({ message: 'Missing information' })
+        const { projectName, describe } = req.body;
 
-        const existUser = userModel.findOne({ _id: ownerId })
-        if (!existUser) return res.status(404).json({ message: 'User not found' })
+        if (!projectName) {
+            return res.status(400).json({ message: 'Missing project name' });
+        }
 
-        req.project = existUser
-        next()
+        if (!req.user) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        req.project = req.user;
+        next();
     } catch (error) {
-        return res.status(500).json({ message: error.message })
+        return res.status(500).json({ message: error.message });
     }
-}
+};
+

@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema ({
-    email: { type: String, require: true, unique: true },
-    password: { type: String, require: true },
-    firstName: { type: String, require: true },
-    lastName: { type: String, require: true },
-    gender: { type: String, enum: ['Male', 'Female'], require: true },
-    DOB: { type: Date, require: true },
-    age: { type: Number, require: true },
-    position: { type: String, require: true },
-    role: { type: String, enum: ['employee', 'manager', 'admin'], default: 'employee', require: true },
+    email: { type: String, require: true, uniqued: true },
+    password: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    gender: { type: String, enum: ['Male', 'Female'], required: true },
+    DOB: { type: Date, required: true },
+    age: { type: Number, required: true },
+    position: { type: String, required: true },
+    role: { type: String, enum: ['employee', 'manager', 'admin'], default: 'employee', required: true },
     rank: { type: String, default: 'E' },
     stats: {
         organization_skill: {
