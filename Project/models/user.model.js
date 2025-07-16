@@ -8,9 +8,11 @@ const userSchema = new mongoose.Schema ({
     gender: { type: String, enum: ['Male', 'Female'], required: true },
     DOB: { type: Date, required: true },
     age: { type: Number, required: true },
-    position: { type: String, required: true },
     role: { type: String, enum: ['employee', 'manager', 'admin'], default: 'employee', required: true },
-    rank: { type: String, default: 'E' },
+    position: { type: String },
+    rank: { type: String, default: 'E', required: true },
+    resetToken: { type: String },
+    resetTokenExpiration: { type: Date },
     stats: {
         organization_skill: {
             type: Number,

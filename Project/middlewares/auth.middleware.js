@@ -1,4 +1,5 @@
 import userModel from "../models/user.model.js"
+import taskModel from "../models/task.model.js"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
@@ -7,7 +8,7 @@ export const validateRegister = async (req, res, next) => {
     try {
         const { email, password, confirmPassword, firstName, lastName, DOB, gender } = req.body
         if (!email || !password || !confirmPassword || !firstName || !lastName || !DOB || !gender) return res.status(400).json({ message: 'Missing information' })
-        
+
         const existEmail = await userModel.findOne({ email })
         if (existEmail) return res.status(400).json({ message: 'Email has been used' })
 
@@ -45,7 +46,7 @@ export const validateLogin = async (req, res, next) => {
 export const authUser = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization
-        if(!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ message: 'No token provied' })
+        if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ message: 'No token provied' })
 
         const token = authHeader.split(' ')[1]
 
@@ -64,8 +65,8 @@ export const authUser = async (req, res, next) => {
 export const authManager = async (req, res, next) => {
     try {
         if (!req.user) return res.status(401).json({ message: 'Unauthorized: User not authenticated' });
-            
-        if (req.user.role !== 'manager') return res.status(403).json({ message: `Access denied: Manager's only` })
+
+        if (req.user.role !== 'manager') return res.status(403).json({ message: `Access denied: Manager's permission only` })
 
         next()
     } catch (error) {
@@ -107,3 +108,33 @@ export const validateProject = async (req, res, next) => {
     }
 };
 
+export const authAdmin = async (req, res, next) => {
+    try {
+        if (!req.user) return res.status(401).json({ message: 'Unauthorized: User not authenticated' })
+
+        if (req.user.role !== 'admin') return res.status(403).json({ message: `Access denied: Admin's permission only` })
+
+        next()
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+export const updateTask = async (req, res, next) => {
+    try {
+        const { taskId } = req.params;
+        const userId = req.user._id;
+
+        const task = await taskModel.findById(taskId);
+        if (!task) return res.status(404).json({ message: 'Task not found' });
+
+        if (task.userId.toString() !== userId.toString()) {
+            return res.status(403).json({ message: 'Unauthorized: Task does not belong to this user' });
+        }
+
+        req.task = task;
+        next();
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
